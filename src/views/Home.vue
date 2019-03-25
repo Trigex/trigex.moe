@@ -1,5 +1,5 @@
 <template>
-  <v-img src='http://agapi.trigex.xyz/image' max-height="400" v-bind:contain='true'/>
+  <v-img src='http://agapi.trigex.moe/image' max-height="400" v-bind:contain='true'/>
 </template>
 
 <script>
