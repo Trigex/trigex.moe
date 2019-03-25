@@ -41,4 +41,8 @@ export default {
 #links {
     font-size: 30px;
 }
+
+#contacts {
+    word-wrap: break-word;
+}
 </style>
