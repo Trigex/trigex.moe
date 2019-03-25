@@ -39,6 +39,11 @@ export default new Router({
       path: '/blog',
       name: 'blog',
       component: () => import('./views/Blog.vue')
+    },
+    {
+      path: '*',
+      name: '404',
+      component: () => import('./views/404.vue')
     }
   ]
 })
