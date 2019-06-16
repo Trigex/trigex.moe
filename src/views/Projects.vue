@@ -58,4 +58,8 @@ export default {
 .HTML {
     color: orange;
 }
+
+.Go {
+    color: #6ad7e5
+}
 </style>

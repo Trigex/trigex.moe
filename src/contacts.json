@@ -1,7 +1,11 @@
 [
     {
-        "title": "Discord",
-        "contact": "Trigex#0248"
+        "title": "matrix.org",
+        "contact": "@trigex:matrix.org"
+    },
+    {
+        "title": "matrix.trigex.moe",
+        "contact": "@trigex:matrix.trigex.moe"
     },
     {
         "title": "Email",
