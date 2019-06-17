@@ -1,91 +1,155 @@
 <template>
-  <v-app dark>
-      <Header />
-      <router-view />
-  </v-app>
+  <div id="app">
+    <Header />
+    <Content>
+      <router-view/>
+    </Content>
+  </div>
 </template>
 
 <script>
 import Header from '@/components/Header.vue';
+import Content from '@/components/Content.vue';
 
 export default {
   name: 'App',
   components: {
-      Header
+    Header,
+    Content
   }
 }
 </script>
 
 <style>
-@font-face {
-    font-family: 'Product Sans';
-    src: url('/font/ProductSans-Regular.eot');
-    src: url('/font/ProductSans-Regular.eot?#iefix') format('embedded-opentype'),
-        url('/font/ProductSans-Regular.woff2') format('woff2'),
-        url('/font/ProductSans-Regular.woff') format('woff'),
-        url('/font/ProductSans-Regular.ttf') format('truetype'),
-        url('/font/ProductSans-Regular.svg#ProductSans-Regular') format('svg');
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro');
+
+/* 
+    Body
+*/
+body {
+    background-color: #232323;
+    margin: 0;
+    color: white;
+    line-height: 1.4;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+
+/* 
+    Header 
+*/
+#header {
+    background-color: steelblue;
+    margin: 0;
+    padding: 20px 0;
+}
+
+#header_title {
+    color: white;
+    font-weight: 700;
+    font-size: 40px;
+    text-align: center;
+    line-height: 1.1;
+}
+
+#header_slogan {
+    color: white;
+    text-align: center;
+    font-size: 25px;
     font-weight: normal;
-    font-style: normal;
+    line-height: 1.1;
 }
 
-@font-face {
-    font-family: 'Product Sans';
-    src: url('/font/ProductSans-BoldItalic.eot');
-    src: url('/font/ProductSans-BoldItalic.eot?#iefix') format('embedded-opentype'),
-        url('/font/ProductSans-BoldItalic.woff2') format('woff2'),
-        url('/font/ProductSans-BoldItalic.woff') format('woff'),
-        url('/font/ProductSans-BoldItalic.ttf') format('truetype'),
-        url('/font/ProductSans-BoldItalic.svg#ProductSans-BoldItalic') format('svg');
-    font-weight: bold;
-    font-style: italic;
+/* 
+    Navbar 
+*/
+#navbar {
+    height: 20%;
+    background-color: white;
+    text-align: center;
 }
 
-@font-face {
-    font-family: 'Product Sans';
-    src: url('/font/ProductSans-Italic.eot');
-    src: url('/font/ProductSans-Italic.eot?#iefix') format('embedded-opentype'),
-        url('/font/ProductSans-Italic.woff2') format('woff2'),
-        url('/font/ProductSans-Italic.woff') format('woff'),
-        url('/font/ProductSans-Italic.ttf') format('truetype'),
-        url('/font/ProductSans-Italic.svg#ProductSans-Italic') format('svg');
-    font-weight: normal;
-    font-style: italic;
-}
+/* 
+    Links and text
+*/
 
-@font-face {
-    font-family: 'Product Sans';
-    src: url('/font/ProductSans-Bold.eot');
-    src: url('/font/ProductSans-Bold.eot?#iefix') format('embedded-opentype'),
-        url('/font/ProductSans-Bold.woff2') format('woff2'),
-        url('/font/ProductSans-Bold.woff') format('woff'),
-        url('/font/ProductSans-Bold.ttf') format('truetype'),
-        url('/font/ProductSans-Bold.svg#ProductSans-Bold') format('svg');
-    font-weight: bold;
-    font-style: normal;
-}
-
-#app {
-  font-family: 'Product Sans';
-}
-
-#title {
-    color: #E6E6FA;
-}
-
-a:link {
-    text-decoration: none;
-}
-
-a:visited {
-    text-decoration: none;
+a {
+  color: steelblue;
+  text-decoration: none;
 }
 
 a:hover {
-    text-decoration: underline;
+    color: #2b506e;
 }
 
-a:active {
-    text-decoration: none;
+#nav_list .router-link-exact-active {
+    color: rgb(61, 105, 141);
+}
+
+#nav_list a:link {
+    text-transform: uppercase;
+    height: 100%;
+    font-weight: 700;
+    letter-spacing: 1px;
+    font-size: inherit;
+    padding: 20px;
+}
+
+.big_p {
+    font-size: 18px;
+    padding: 0 10px;
+}
+
+.text_center {
+    text-align: center;
+}
+
+#about_text {
+    width: 50%;
+}
+
+/* Languages */
+
+.PHP {
+    color: #777bb3;
+}
+.Java {
+    color: #7D6757;
+}
+.JavaScript {
+    color: yellow;
+}
+.HTML {
+    color: orange;
+}
+.Go {
+    color: #6ad7e5
+}
+
+/*
+    Assorted layout
+*/
+.block_center {
+    display: block;
+    margin: 0 auto;
+}
+
+img {
+    padding-top: 10px;
+    width: 30%;
+}
+
+.project {
+    background: #424040;
+    margin: 10px auto;
+    padding: 10px;
+    width: 50%;
+    display: block;
+}
+
+.blog_entry {
+    margin-left: 10px;
+    padding-left: 10px;
+    margin-right: 10px;
+    background: #424040;
 }
 </style>

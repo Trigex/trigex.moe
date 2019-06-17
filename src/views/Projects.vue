@@ -1,16 +1,16 @@
-<template v-if='projects'>
-    <div id='projects'>
-        <v-card v-for='project in projects' v-bind:key='project.id'>
-            <a v-bind:href='project.html_url'><h1>{{project.name}}</h1></a>
-            <h2>{{project.description}}</h2>
-            <h3 v-bind:class='project.language'>{{project.language}}</h3>
-        </v-card>
+<template v-if="projects">
+<div>
+    <div class="project" v-for="project in projects" v-bind:key="project.id">
+        <a v-bind:href="project.html_url"><h1>{{project.name}}</h1></a>
+        <h2>{{project.description}}</h2>
+        <h3 v-bind:class='project.language'>{{project.language}}</h3>
     </div>
+</div>
 </template>
 
 <script>
 export default {
-    name: 'projects',
+    name: 'Projects',
     data() {
         return {
             projects: null
@@ -29,37 +29,3 @@ export default {
     }
 }
 </script>
-
-<style scoped>
-#projects {
-    margin: 20px;
-}
-
-.v-card {
-  width: 70%;
-  padding: 10px;
-  transform: translateX(-50%);
-  left: 50%;
-  margin: 10px;
-}
-
-.PHP {
-    color: #777bb3;
-}
-
-.Java {
-    color: #7D6757;
-}
-
-.JavaScript {
-    color: yellow;
-}
-
-.HTML {
-    color: orange;
-}
-
-.Go {
-    color: #6ad7e5
-}
-</style>

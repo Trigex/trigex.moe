@@ -3,5 +3,10 @@
         "title": "Minimal JSON blog best blog",
         "content": "Really, who the hell needs some bloated database for a personal blog when JSON exists? I know I don't!\noh also new website and domain enjoy thank you based Vue",
         "timestamp": "03/24/19"
+    },
+    {
+        "title": "Blast to the past!",
+        "content": "Using trigex.net's design now!!!",
+        "timestamp": "06/16/19"
     }
 ]
