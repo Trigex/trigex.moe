@@ -1,5 +1,6 @@
 <template v-if="projects">
 <div>
+    <h1 class="text_center">Projects</h1>
     <div class="project" v-for="project in projects" v-bind:key="project.id">
         <a v-bind:href="project.html_url"><h1>{{project.name}}</h1></a>
         <h2>{{project.description}}</h2>

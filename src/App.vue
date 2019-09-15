@@ -46,7 +46,7 @@ body {
 #header_title {
     color: white;
     font-weight: 700;
-    font-size: 40px;
+    font-size: 3em;
     text-align: center;
     line-height: 1.1;
 }
@@ -54,7 +54,7 @@ body {
 #header_slogan {
     color: white;
     text-align: center;
-    font-size: 25px;
+    font-size: 2em;
     font-weight: normal;
     line-height: 1.1;
 }
@@ -63,7 +63,9 @@ body {
     Navbar 
 */
 #navbar {
+    width: 100%;
     height: 20%;
+    font-size: 1.3em;
     background-color: white;
     text-align: center;
 }
@@ -91,11 +93,11 @@ a:hover {
     font-weight: 700;
     letter-spacing: 1px;
     font-size: inherit;
-    padding: 20px;
+    padding: 1.2vw;
 }
 
 .big_p {
-    font-size: 18px;
+    font-size: 1.4em;
     padding: 0 10px;
 }
 
@@ -134,22 +136,49 @@ a:hover {
 }
 
 img {
-    padding-top: 10px;
-    width: 30%;
+    padding-top: 1.5vh;
+    width: 35vw;
 }
 
 .project {
     background: #424040;
-    margin: 10px auto;
-    padding: 10px;
-    width: 50%;
+    margin: 2vw auto;
+    padding: 0.3vw 1vw;
+    width: 60%;
     display: block;
+    word-wrap: break-word;
+}
+
+.project h1 {
+    font-size: 2em;
+}
+
+.project h2 {
+    font-size: 1.3em;
 }
 
 .blog_entry {
-    margin-left: 10px;
-    padding-left: 10px;
-    margin-right: 10px;
+    margin: 3vw;
+    padding: 1vw;
+    word-wrap: break-word;
     background: #424040;
+}
+
+@media only screen and (max-width: 500px) {
+    #navbar {
+        font-size: 4.5vw;
+    }
+
+    .project {
+        width: 70vw;
+    }
+
+    .project h1 {
+        font-size: 8vw;
+    }
+
+    .project h2 {
+        font-size: 5.5vw;
+    }
 }
 </style>
