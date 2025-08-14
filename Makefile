@@ -1,3 +1,4 @@
+
 # Makefile for a Go project using templ
 
 # ==============================================================================
@@ -27,6 +28,10 @@ MAIN_GO := main.go
 # ==============================================================================
 # Installation Variables (FreeBSD)
 # ==============================================================================
+
+# Check if the current user is root. If so, DOAS is empty. If not, it's "doas".
+# This avoids running `doas` when already root.
+DOAS := $(shell if [ `id -u` -eq 0 ]; then echo ""; else echo "doas"; fi)
 
 # The name of the service and user
 SERVICE_NAME := trigexmoe
@@ -112,21 +117,21 @@ install: build
 	@echo "--> Checking for service user '$(SERVICE_USER)'..."
 	@if ! id -u $(SERVICE_USER) >/dev/null 2>&1; then \
 		echo "--> Service user not found. Creating user '$(SERVICE_USER)'..."; \
-		doas pw useradd $(SERVICE_USER) -s /usr/sbin/nologin -d /nonexistent -c "Service user for $(SERVICE_NAME)" -w no; \
+		$(DOAS) pw useradd $(SERVICE_USER) -s /usr/sbin/nologin -d /nonexistent -c "Service user for $(SERVICE_NAME)" -w no; \
 	else \
 		echo "--> Service user already exists."; \
 	fi
 	@echo "--> Installing binary to $(INSTALL_PATH)..."
-	doas install -m 0755 $(BINARY_NAME) $(INSTALL_PATH)
+	$(DOAS) install -m 0755 $(BINARY_NAME) $(INSTALL_PATH)
 	@echo "--> Installing rc.d service file to $(SERVICE_FILE)..."
 	@# Use printf with %b to interpret the newline characters in the variable.
-	doas sh -c 'printf -- "%b" "$(RCD_SCRIPT_CONTENT)" > $(SERVICE_FILE)'
+	$(DOAS) sh -c 'printf -- "%b" "$(RCD_SCRIPT_CONTENT)" > $(SERVICE_FILE)'
 	@# Make the rc.d script executable.
-	doas chmod 0755 $(SERVICE_FILE)
+	$(DOAS) chmod 0755 $(SERVICE_FILE)
 	@echo ""
 	@echo "--> Installation complete."
 	@echo "--> To enable the service, add trigexmoe_enable=\"YES\" to /etc/rc.conf"
-	@echo "--> To start the service now, run: doas service trigexmoe start"
+	@echo "--> To start the service now, run: $(DOAS) service trigexmoe start"
 
 
 # Uninstall the application and service file.
@@ -139,11 +144,11 @@ uninstall:
 		exit 1; \
 	fi
 	@echo "--> Stopping service (if running)..."
-	-doas service $(SERVICE_NAME) stop
+	-$(DOAS) service $(SERVICE_NAME) stop
 	@echo "--> Removing binary from $(INSTALL_PATH)..."
-	doas rm -f $(INSTALL_PATH)
+	$(DOAS) rm -f $(INSTALL_PATH)
 	@echo "--> Removing rc.d service file from $(SERVICE_FILE)..."
-	doas rm -f $(SERVICE_FILE)
+	$(DOAS) rm -f $(SERVICE_FILE)
 	@echo ""
 	@echo "--> Uninstallation complete."
 	@echo "--> NOTE: The service user '$(SERVICE_USER)' was not removed."
@@ -157,7 +162,7 @@ uninstall-user:
 		echo "Error: 'uninstall-user' target is only for FreeBSD systems."; \
 		exit 1; \
 	fi
-	doas pw userdel $(SERVICE_USER)
+	$(DOAS) pw userdel $(SERVICE_USER)
 
 
 # ==============================================================================
