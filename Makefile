@@ -7,14 +7,15 @@
 # Go command
 GO_CMD := go
 
-# Go Path
-# We get the GOPATH from the `go env` command to ensure we have the correct path.
-GOPATH := $(shell go env GOPATH)
+# Tools directory for local binaries.
+# We use Make's built-in .CURDIR variable to create an absolute path.
+# This is the most robust method, as it works correctly even when `make`
+# is run with doas, and satisfies Go's requirement for an absolute GOBIN path.
+TOOLS_DIR := $(.CURDIR)/tools
 
 # Templ command
-# We define the full path to the templ binary. This ensures we run the correct
-# executable, even if GOPATH/bin is not in the system's PATH.
-TEMPL_CMD := $(GOPATH)/bin/templ
+# We define the full path to the locally installed templ binary.
+TEMPL_CMD := $(TOOLS_DIR)/bin/templ
 
 # Name of the output binary
 BINARY_NAME := trigexmoe
@@ -76,9 +77,10 @@ generate: $(TEMPL_CMD)
 # This is a file-based target. The commands here will only run if the file
 # specified by $(TEMPL_CMD) does not exist.
 $(TEMPL_CMD):
-	@echo "--> templ command not found, installing..."
-	@# We ensure `go install` places the binary in the correct GOPATH/bin.
-	GOBIN=$(GOPATH)/bin $(GO_CMD) install github.com/a-h/templ/cmd/templ@latest
+	@echo "--> templ command not found, installing locally to $(TOOLS_DIR)/bin..."
+	@mkdir -p $(TOOLS_DIR)/bin
+	@# By setting GOBIN to an absolute path, we satisfy `go install`'s requirement.
+	GOBIN=$(TOOLS_DIR)/bin $(GO_CMD) install github.com/a-h/templ/cmd/templ@latest
 
 # Run the compiled application locally.
 .PHONY: run
@@ -86,11 +88,12 @@ run: build
 	@echo "--> Running application locally..."
 	./$(BINARY_NAME)
 
-# Clean up build artifacts.
+# Clean up build artifacts and local tools.
 .PHONY: clean
 clean:
 	@echo "--> Cleaning up..."
 	rm -f $(BINARY_NAME)
+	rm -rf $(TOOLS_DIR)
 
 
 # ==============================================================================
@@ -106,17 +109,24 @@ install: build
 		echo "Error: 'install' target is only for FreeBSD systems."; \
 		exit 1; \
 	fi
+	@echo "--> Checking for service user '$(SERVICE_USER)'..."
+	@if ! id -u $(SERVICE_USER) >/dev/null 2>&1; then \
+		echo "--> Service user not found. Creating user '$(SERVICE_USER)'..."; \
+		doas pw useradd $(SERVICE_USER) -s /usr/sbin/nologin -d /nonexistent -c "Service user for $(SERVICE_NAME)" -w no; \
+	else \
+		echo "--> Service user already exists."; \
+	fi
 	@echo "--> Installing binary to $(INSTALL_PATH)..."
-	sudo install -m 0755 $(BINARY_NAME) $(INSTALL_PATH)
+	doas install -m 0755 $(BINARY_NAME) $(INSTALL_PATH)
 	@echo "--> Installing rc.d service file to $(SERVICE_FILE)..."
 	@# Use printf with %b to interpret the newline characters in the variable.
-	sudo sh -c 'printf -- "%b" "$(RCD_SCRIPT_CONTENT)" > $(SERVICE_FILE)'
+	doas sh -c 'printf -- "%b" "$(RCD_SCRIPT_CONTENT)" > $(SERVICE_FILE)'
 	@# Make the rc.d script executable.
-	sudo chmod 0755 $(SERVICE_FILE)
+	doas chmod 0755 $(SERVICE_FILE)
 	@echo ""
 	@echo "--> Installation complete."
 	@echo "--> To enable the service, add trigexmoe_enable=\"YES\" to /etc/rc.conf"
-	@echo "--> To start the service now, run: sudo service trigexmoe start"
+	@echo "--> To start the service now, run: doas service trigexmoe start"
 
 
 # Uninstall the application and service file.
@@ -129,12 +139,25 @@ uninstall:
 		exit 1; \
 	fi
 	@echo "--> Stopping service (if running)..."
-	-sudo service $(SERVICE_NAME) stop
+	-doas service $(SERVICE_NAME) stop
 	@echo "--> Removing binary from $(INSTALL_PATH)..."
-	sudo rm -f $(INSTALL_PATH)
+	doas rm -f $(INSTALL_PATH)
 	@echo "--> Removing rc.d service file from $(SERVICE_FILE)..."
-	sudo rm -f $(SERVICE_FILE)
+	doas rm -f $(SERVICE_FILE)
+	@echo ""
 	@echo "--> Uninstallation complete."
+	@echo "--> NOTE: The service user '$(SERVICE_USER)' was not removed."
+	@echo "--> To remove the user, run: make uninstall-user"
+
+# Removes the service user.
+.PHONY: uninstall-user
+uninstall-user:
+	@echo "--> Removing service user '$(SERVICE_USER)' from FreeBSD..."
+	@if [ `uname -s` != "FreeBSD" ]; then \
+		echo "Error: 'uninstall-user' target is only for FreeBSD systems."; \
+		exit 1; \
+	fi
+	doas pw userdel $(SERVICE_USER)
 
 
 # ==============================================================================
@@ -145,11 +168,12 @@ uninstall:
 .PHONY: help
 help:
 	@echo "Available commands:"
-	@echo "  all         - (Default) Build the application."
-	@echo "  build       - Generate templ files and compile the Go source code."
-	@echo "  generate    - Run 'templ generate' (will install templ if missing)."
-	@echo "  run         - Build and run the application locally."
-	@echo "  clean       - Remove the compiled binary."
-	@echo "  install     - (FreeBSD only) Install binary and rc.d service file."
-	@echo "  uninstall   - (FreeBSD only) Remove binary and rc.d service file."
+	@echo "  all              - (Default) Build the application."
+	@echo "  build            - Generate templ files and compile the Go source code."
+	@echo "  generate         - Run 'templ generate' (will install templ if missing)."
+	@echo "  run              - Build and run the application locally."
+	@echo "  clean            - Remove the compiled binary and local tools."
+	@echo "  install          - (FreeBSD only) Create user, install binary and rc.d service file."
+	@echo "  uninstall        - (FreeBSD only) Remove binary and rc.d service file."
+	@echo "  uninstall-user   - (FreeBSD only) Remove the service user account."
 
