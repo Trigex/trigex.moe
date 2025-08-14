@@ -1,0 +1,42 @@
+package views
+
+templ navLink(href, text string) {
+    <a href={ templ.URL(href) }>{ text }</a>
+}
+
+templ Layout(pageTitle string, component templ.Component) {
+    <!DOCTYPE html>
+    <html lang="en">
+        <head>
+            <meta charset="UTF-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<link rel="stylesheet" href="/static/css/pico.min.css"/>
+			<link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
+            <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
+            <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png">
+			<title>{ pageTitle }</title>
+        </head>
+        <body>
+            <main class="container">
+                <nav>
+                    <ul>
+                        <li><a href="/"><strong>trigex.moe</strong></a></li>
+                    </ul>
+                    <ul>
+                        <li>@navLink("/", "Home")</li>
+                        <li>@navLink("/music", "Music")</li>
+                        <li>@navLink("/projects", "Projects")</li>
+                    </ul>
+                </nav>
+
+                @component
+
+                <footer style="text-align: center; margin-top: 4rem; color: var(--pico-muted-color)">
+                    <small>Built with Go, Echo & templ.</small>
+                    <br/>
+                    <small>Feel free to email me at <a href="mailto:trigex@trigex.moe">trigex@trigex.moe</a></small>
+                </footer>
+            </main>
+        </body>
+    </html>
+}

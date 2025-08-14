@@ -1,0 +1,33 @@
+package views
+
+type Link struct {
+	Name string
+	URL  string
+}
+
+type PageData struct {
+	Title string
+	Name  string
+	Bio   string
+	Links []Link
+}
+
+templ HomePage(data PageData) {
+	<header style="text-align: center; margin-top: 2rem;">
+		<h1>{ data.Name }</h1>
+		<p>{ data.Bio }</p>
+	</header>
+	<hr/>
+	<section style="text-align: center; margin-top: 2rem;">
+		<h2>Connect with Me</h2>
+		<div class="grid">
+			for _, link := range data.Links {
+				<div>
+					<a href={ templ.URL(link.URL) } target="_blank" role="button" class="contrast">
+						{ link.Name }
+					</a>
+				</div>
+			}
+		</div>
+	</section>
+}

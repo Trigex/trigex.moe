@@ -1,0 +1,59 @@
+package views
+
+import "time"
+
+type Track struct {
+    Title string
+    FlacURL string
+    Mp3URL string
+    SoundcloudURL string
+    YoutubeURL string
+    CoverImage string
+    ReleaseDate time.Time
+}
+
+templ MusicPage(tracks []Track) {
+	<header>
+		<h2>Music Releases 🎵</h2>
+		<p>A collection of tracks I've produced. Mostly hardcore techno, but I dabble in other genres sometimes too. Click to play!</p>
+	</header>
+
+	for _, track := range tracks {
+		<article style="display: grid; grid-template-columns: 150px 1fr; gap: 1.5rem; align-items: center;">
+			if track.CoverImage != "" {
+				<img src={ templ.URL("/static/img/covers/" + track.CoverImage) } alt={ "Cover art for " + track.Title } style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px;"/>
+			}
+
+			<div>
+				<header>
+					<strong>{ track.Title }</strong>
+					<br/>
+					<small>Released: { track.ReleaseDate.Format("Monday, January 2, 2006") }</small>
+					<hr>
+				</header>
+
+				if track.Mp3URL != "" {
+					<audio controls style="width: 100%;">
+						<source src={ templ.URL(track.Mp3URL) } type="audio/mpeg"/>
+						Your browser does not support the audio element.
+					</audio>
+				}
+
+				<div class="grid" style="margin-top: 1rem;">
+					if track.SoundcloudURL != "" {
+						<a href={ templ.URL(track.SoundcloudURL) } role="button" class="secondary" target="_blank">SoundCloud</a>
+					}
+					if track.YoutubeURL != "" {
+						<a href={ templ.URL(track.YoutubeURL) } role="button" class="secondary" target="_blank">YouTube</a>
+					}
+					if track.FlacURL != "" {
+						<a href={ templ.URL(track.FlacURL) } role="button" class="secondary" target="_blank">Download FLAC</a>
+					}
+					if track.Mp3URL != "" {
+						<a href={ templ.URL(track.Mp3URL) } role="button" class="secondary" target="_blank">Download MP3</a>
+					}
+				</div>
+			</div>
+		</article>
+	}
+}

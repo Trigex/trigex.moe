@@ -1,0 +1,25 @@
+package views
+
+type Project struct {
+	Name        string
+	Description string
+	RepoURL     string
+	TechStack   string
+}
+
+templ ProjectsPage(projects []Project) {
+	<header>
+		<h2>Programming Projects 💻</h2>
+		<p>Things I've built</p>
+	</header>
+	for _, project := range projects {
+		<article>
+			<header><strong>{ project.Name }</strong></header>
+			{ project.Description }
+			<p><small>Tech: { project.TechStack }</small></p>
+			<footer>
+				<a href={ templ.URL(project.RepoURL) } role="button" target="_blank">View on GitHub</a>
+			</footer>
+		</article>
+	}
+}
