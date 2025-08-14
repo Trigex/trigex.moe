@@ -1,0 +1,72 @@
+#!/bin/sh
+
+# PROVIDE: trigexmoe
+# REQUIRE: LOGIN networking
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="trigexmoe"
+rcvar="trigexmoe_enable"
+
+pidfile="/var/run/${name}.pid"
+trigexmoe_user="trigexmoe"
+procname="/usr/local/sbin/trigexmoe"
+logfile="/var/log/trigexmoe.log"
+
+# Define custom start, stop, and status commands
+start_cmd="trigexmoe_start"
+stop_cmd="trigexmoe_stop"
+status_cmd="trigexmoe_status"
+
+# A placeholder command is needed for rc.subr to function correctly
+command="/usr/bin/true"
+
+trigexmoe_start()
+{
+	# Check if a PID file exists and if the process is actually running
+	if [ -f "${pidfile}" ] && kill -0 `cat ${pidfile}` 2>/dev/null; then
+		echo "${name} is already running."
+		return 1
+	fi
+
+	echo "Starting ${name}."
+	# Use su to run the process as the correct user, redirecting output.
+	# The command is run in a subshell `()` to ensure the `&` backgrounds it correctly.
+	su -m ${trigexmoe_user} -c "(${procname} > ${logfile} 2>&1 &)"
+
+	# Give the process a moment to start up
+	sleep 1
+
+	# Find the PID of the new process and write it to the pidfile.
+	# The pgrep pattern is anchored to match the exact process name.
+	pgrep -u ${trigexmoe_user} -f "^${procname}$" > ${pidfile}
+}
+
+trigexmoe_stop()
+{
+	if [ ! -f "${pidfile}" ] || ! kill -0 `cat ${pidfile}` 2>/dev/null; then
+		echo "${name} is not running."
+		return 1
+	fi
+
+	echo "Stopping ${name}."
+	# Send the TERM signal to the process ID found in the pidfile
+	kill `cat ${pidfile}`
+	# Remove the pidfile
+	rm -f ${pidfile}
+}
+
+trigexmoe_status()
+{
+	if [ -f "${pidfile}" ] && kill -0 `cat ${pidfile}` 2>/dev/null; then
+		echo "${name} is running as pid `cat ${pidfile}`."
+	else
+		echo "${name} is not running."
+	fi
+}
+
+load_rc_config $name
+: ${trigexmoe_enable:="NO"}
+
+run_rc_command "$1"
