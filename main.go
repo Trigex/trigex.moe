@@ -2,11 +2,13 @@ package main
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/trigex/trigex.moe/views"
 	"io/fs"
+	"net/http"
 	"time"
 )
 
@@ -33,6 +35,8 @@ func main() {
 		e.Logger.Fatal(err)
 	}
 
+	e.HTTPErrorHandler = customErrorHandler
+
 	// -- Routes
 	// Serve assets at /static
 	e.StaticFS("/static", staticFS)
@@ -48,6 +52,31 @@ func main() {
 	if err := e.Start(fmt.Sprintf(":%d", Port)); err != nil {
 		e.Logger.Fatal(err)
 	}
+}
+
+func customErrorHandler(err error, c echo.Context) {
+	// Cast the error to an echo.HTTPError to get the status code
+	code := http.StatusInternalServerError
+	var he *echo.HTTPError
+	if errors.As(err, &he) {
+		code = he.Code
+	}
+
+	// If the error is a 404 Not Found, render our custom page
+	if code == http.StatusNotFound {
+		// It's important to set the status code on the response
+		c.Response().WriteHeader(code)
+		// Render the 404 page inside our main layout
+		page := views.Layout("trigex.moe | Page Not Found", views.NotFoundPage())
+		err := page.Render(c.Request().Context(), c.Response().Writer)
+		if err != nil {
+			c.Logger().Error(err)
+		}
+		return
+	}
+
+	// For all other errors, fall back to Echo's default handler
+	c.Echo().DefaultHTTPErrorHandler(err, c)
 }
 
 func serveHomePage(c echo.Context) error {
