@@ -49,9 +49,6 @@ SERVICE_FILE := $(RCD_DIR)/$(SERVICE_NAME)
 # The double dollar signs ($$) escape the dollar sign for the shell.
 RCD_SCRIPT_CONTENT := '#!/bin/sh\n\n# PROVIDE: $(SERVICE_NAME)\n# REQUIRE: LOGIN networking\n# KEYWORD: shutdown\n\n. /etc/rc.subr\n\nname="$(SERVICE_NAME)"\nrcvar="$${name}_enable"\n\npidfile="/var/run/$${name}.pid"\ntrigexmoe_user="$(SERVICE_USER)"\nprocname="$(INSTALL_PATH)"\nlogfile="/var/log/$${name}.log"\n\n# Define custom start, stop, and status commands\nstart_cmd="$${name}_start"\nstop_cmd="$${name}_stop"\nstatus_cmd="$${name}_status"\n\n# A placeholder command is needed for rc.subr to function correctly\ncommand="/usr/bin/true"\n\ntrigexmoe_start()\n{\n\t# Check if a PID file exists and if the process is actually running\n\tif [ -f "$${pidfile}" ] && kill -0 `cat $${pidfile}` 2>/dev/null; then\n\t\techo "$${name} is already running."\n\t\treturn 1\n\tfi\n\n\techo "Starting $${name}."\n\t# Use su to run the process as the correct user, redirecting output.\n\t# The command is run in a subshell `()` to ensure the `&` backgrounds it correctly.\n\tsu -m $${trigexmoe_user} -c "($${procname} > $${logfile} 2>&1 &)"\n\n\t# Give the process a moment to start up\n\tsleep 1\n\n\t# Find the PID of the new process and write it to the pidfile.\n\t# The pgrep pattern is anchored to match the exact process name.\n\tpgrep -u $${trigexmoe_user} -f "^$${procname}$$" > $${pidfile}\n}\n\ntrigexmoe_stop()\n{\n\tif [ ! -f "$${pidfile}" ] || ! kill -0 `cat $${pidfile}` 2>/dev/null; then\n\t\techo "$${name} is not running."\n\t\treturn 1\n\tfi\n\n\techo "Stopping $${name}."\n\t# Send the TERM signal to the process ID found in the pidfile\n\tkill `cat $${pidfile}`\n\t# Remove the pidfile\n\trm -f $${pidfile}\n}\n\ntrigexmoe_status()\n{\n\tif [ -f "$${pidfile}" ] && kill -0 `cat $${pidfile}` 2>/dev/null; then\n\t\techo "$${name} is running as pid `cat $${pidfile}`."\n\telse\n\t\techo "$${name} is not running."\n\tfi\n}\n\nload_rc_config $$name\n: $${trigexmoe_enable:="NO"}\n\nrun_rc_command "$$1"\n'
 
-# This makes the RCD_SCRIPT_CONTENT variable available to shell commands invoked by make.
-export RCD_SCRIPT_CONTENT
-
 
 # ==============================================================================
 # Standard Targets
@@ -113,7 +110,7 @@ install: build
 	sudo install -m 0755 $(BINARY_NAME) $(INSTALL_PATH)
 	@echo "--> Installing rc.d service file to $(SERVICE_FILE)..."
 	@# Use printf with %b to interpret the newline characters in the variable.
-	sudo sh -c 'printf -- "%b" "$$RCD_SCRIPT_CONTENT" > $(SERVICE_FILE)'
+	sudo sh -c 'printf -- "%b" "$(RCD_SCRIPT_CONTENT)" > $(SERVICE_FILE)'
 	@# Make the rc.d script executable.
 	sudo chmod 0755 $(SERVICE_FILE)
 	@echo ""
@@ -155,3 +152,4 @@ help:
 	@echo "  clean       - Remove the compiled binary."
 	@echo "  install     - (FreeBSD only) Install binary and rc.d service file."
 	@echo "  uninstall   - (FreeBSD only) Remove binary and rc.d service file."
+
