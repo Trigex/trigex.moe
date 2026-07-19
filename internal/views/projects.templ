@@ -1,0 +1,29 @@
+package views
+
+type Project struct {
+	Name        string
+	Description string
+	RepoURL     string
+	TechStack   string
+}
+
+templ ProjectsPage(projects []Project) {
+	<div class="mb-6">
+		<h2 class="text-3xl font-bold">Programming Projects 💻</h2>
+		<p class="text-base-content/70">Things I've built</p>
+	</div>
+	<div class="grid gap-6">
+		for _, project := range projects {
+			<div class="card bg-base-100 shadow-xl">
+				<div class="card-body">
+					<h3 class="card-title">{ project.Name }</h3>
+					<p>{ project.Description }</p>
+					<div class="card-actions w-full flex-wrap items-start justify-between gap-3 sm:items-center">
+						<span class="badge badge-outline inline-block h-auto max-w-full whitespace-normal break-all px-3 py-2 text-left leading-tight">{ project.TechStack }</span>
+						<a href={ templ.URL(project.RepoURL) } class="btn btn-primary btn-sm shrink-0" target="_blank">View on GitHub</a>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}

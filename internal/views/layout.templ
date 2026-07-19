@@ -1,0 +1,48 @@
+package views
+
+templ navLink(href, text string) {
+    <a href={ templ.URL(href) } class="btn btn-ghost btn-md">{ text }</a>
+}
+
+templ Layout(pageTitle string, component templ.Component) {
+    <!DOCTYPE html>
+    <html lang="en" data-theme="garden">
+        <head>
+            <meta charset="UTF-8"/>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+			<link rel="stylesheet" href="/static/css/site.css"/>
+            <link rel="alternate" type="application/rss+xml" title="trigex.moe Blog RSS" href="/blog/rss.xml"/>
+            <script src="https://unpkg.com/htmx.org@1.9.12" crossorigin="anonymous"></script>
+			<link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
+            <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
+            <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png">
+			<title>{ pageTitle }</title>
+        </head>
+        <body class="min-h-screen bg-base-200 text-base-content">
+            <main class="mx-auto flex min-h-screen w-full max-w-6xl flex-col px-4 py-6">
+                <nav class="navbar rounded-box bg-base-100 shadow">
+                    <div class="flex-1">
+                        <a href="/" class="btn btn-ghost text-xl">trigex.moe</a>
+                    </div>
+                    <div class="flex-none gap-2">
+                        @navLink("/", "Home")
+                        @navLink("/music", "Music")
+                        @navLink("/projects", "Projects")
+                        @navLink("/blog", "Blog")
+                    </div>
+                </nav>
+
+                <section class="mt-8 flex-1">
+                    @component
+                </section>
+
+                <footer class="footer footer-center mt-8 rounded-box bg-base-100 p-8 text-base-content shadow">
+                        <div class="flex flex-col items-center gap-1 text-center">
+                            <p>(c) Trigex 2026, website source code licensed under the MIT License</p>
+                            <p>Email me at <a href="mailto:trigex@trigex.moe">trigex@trigex.moe</a> to contact me</p>
+                        </div>
+                </footer>
+            </main>
+        </body>
+    </html>
+}

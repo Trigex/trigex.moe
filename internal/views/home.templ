@@ -1,0 +1,32 @@
+package views
+
+type Link struct {
+	ID   string
+	Name string
+	URL  string
+}
+
+type PageData struct {
+	Title string
+	Name  string
+	Bio   string
+	Links []Link
+}
+
+templ HomePage(data PageData) {
+	<div class="card bg-base-100 shadow-xl">
+		<div class="card-body text-center">
+			<!-- <h1 class="card-title mx-auto text-4xl">{ data.Name }</h1> -->
+			<h2 class="mx-auto max-w-3xl">{ data.Bio }</h2>
+
+			<div class="divider">Connect with Me</div>
+			<div class="flex flex-wrap justify-center gap-3">
+				for _, link := range data.Links {
+					<a href={ templ.URL(link.URL) } target="_blank" class="btn btn-primary">
+						{ link.Name }
+					</a>
+				}
+			</div>
+		</div>
+	</div>
+}

@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@source "../../internal/views";
+@plugin "daisyui" {
+    themes: dracula --default;
+}
+@plugin "@tailwindcss/typography";

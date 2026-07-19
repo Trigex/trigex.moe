@@ -1,0 +1,14 @@
+{
+  "name": "trigex.moe",
+  "private": true,
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.0",
+    "@tailwindcss/typography": "^0.5.16",
+    "daisyui": "^5.0.0",
+    "tailwindcss": "^4.1.0"
+  },
+  "scripts": {
+    "build:css": "tailwindcss -i ./assets/css/app.css -o ./assets/css/site.css --minify",
+    "watch:css": "tailwindcss -i ./assets/css/app.css -o ./assets/css/site.css --watch"
+  }
+}

@@ -1,0 +1,14 @@
+version: "2"
+
+sql:
+  - engine: "sqlite"
+    schema:
+      - "internal/content/schema.sql"
+    queries:
+      - "internal/content/queries"
+    gen:
+      go:
+        package: "content"
+        out: "internal/content"
+        sql_package: "database/sql"
+        emit_json_tags: true

@@ -1,0 +1,76 @@
+package views
+
+import (
+	"strings"
+	"time"
+)
+
+type Track struct {
+	Title        string
+	Genre        string
+	FlacURL      string
+	Mp3URL       string
+	SoundcloudURL string
+	YoutubeURL   string
+	CoverImage   string
+	ReleaseDate  time.Time
+}
+
+func coverImageURL(cover string) string {
+	if strings.HasPrefix(cover, "/") || strings.HasPrefix(cover, "http://") || strings.HasPrefix(cover, "https://") {
+		return cover
+	}
+	return "/static/img/covers/" + cover
+}
+
+templ MusicPage(tracks []Track) {
+	<div class="mb-6">
+		<h2 class="text-3xl font-bold">Music Releases 🎵</h2>
+		<p class="text-base-content/70">A collection of tracks I've produced. Mostly hardcore techno, but I dabble in other genres sometimes too. Click to play!</p>
+		<p class="text-sm text-base-content/50">(Audio files may take a while to load on mobile)</p>
+	</div>
+
+	<div class="grid gap-6">
+		for _, track := range tracks {
+			<div class="card bg-base-100 shadow-xl">
+				<div class="card-body">
+					<div class="grid gap-6 lg:grid-cols-[150px_1fr] lg:items-center">
+						if track.CoverImage != "" {
+							<img src={ templ.URL(coverImageURL(track.CoverImage)) } alt={ "Cover art for " + track.Title } class="h-[150px] w-[150px] rounded-box object-cover shadow"/>
+						}
+
+						<div>
+							<h3 class="card-title">{ track.Title }</h3>
+							<p class="text-sm text-base-content/70">Released: { track.ReleaseDate.Format("Monday, January 2, 2006") }</p>
+							if track.Genre != "" {
+								<p class="mt-2 text-sm text-base-content/80">Genre: <span class="font-medium">{ track.Genre }</span></p>
+							}
+
+							if track.Mp3URL != "" {
+								<audio controls class="mt-4 w-full">
+									<source src={ templ.URL(track.Mp3URL) } type="audio/mpeg"/>
+									Your browser does not support the audio element.
+								</audio>
+							}
+
+							<div class="mt-4 flex flex-wrap gap-2">
+								if track.SoundcloudURL != "" {
+									<a href={ templ.URL(track.SoundcloudURL) } class="btn btn-outline btn-secondary btn-sm" target="_blank">SoundCloud</a>
+								}
+								if track.YoutubeURL != "" {
+									<a href={ templ.URL(track.YoutubeURL) } class="btn btn-outline btn-secondary btn-sm" target="_blank">YouTube</a>
+								}
+								if track.FlacURL != "" {
+									<a href={ templ.URL(track.FlacURL) } class="btn btn-outline btn-secondary btn-sm" target="_blank">Download FLAC</a>
+								}
+								if track.Mp3URL != "" {
+									<a href={ templ.URL(track.Mp3URL) } class="btn btn-outline btn-secondary btn-sm" target="_blank">Download MP3</a>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}

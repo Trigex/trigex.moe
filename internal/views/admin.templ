@@ -1,0 +1,397 @@
+package views
+
+import "time"
+
+type AdminTrack struct {
+	ID          string
+	Title       string
+	Genre       string
+	ReleaseDate time.Time
+}
+
+type AdminProject struct {
+	ID      string
+	Name    string
+	RepoURL string
+}
+
+templ AdminPage(posts []BlogPost, tracks []AdminTrack, projects []AdminProject, links []Link) {
+	<div class="mb-6">
+		<h2 class="text-3xl font-bold">Admin</h2>
+		<p class="text-base-content/70">Create blog, music, and project entries.</p>
+	</div>
+
+	<div class="grid gap-8">
+		<section class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h3 class="card-title">Existing blog posts</h3>
+				if len(posts) == 0 {
+					<p class="text-base-content/70">No posts yet.</p>
+				} else {
+					<div class="overflow-x-auto">
+						<table class="table w-full [&_th]:px-5 [&_td]:px-5 [&_th]:py-3 [&_td]:py-3 [&_th]:text-center [&_td]:text-center">
+							<thead>
+								<tr>
+									<th>Title</th>
+									<th>Published</th>
+									<th>Slug</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, post := range posts {
+									<tr>
+										<td>{ post.Title }</td>
+										<td>{ post.PublishedAt.Format("2006-01-02") }</td>
+										<td><code>{ post.Slug }</code></td>
+										<td>
+											<div class="flex justify-center gap-2">
+												<a href={ templ.URL("/admin/blog/" + post.Slug + "/edit") } class="btn btn-sm btn-outline">Edit</a>
+												<form method="post" action={ templ.URL("/admin/blog/" + post.Slug + "/delete") }>
+													<button class="btn btn-sm btn-error btn-outline" type="submit">Delete</button>
+												</form>
+											</div>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+		</section>
+
+		<section class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h3 class="card-title">Existing music releases</h3>
+				if len(tracks) == 0 {
+					<p class="text-base-content/70">No releases yet.</p>
+				} else {
+					<div class="overflow-x-auto">
+						<table class="table w-full [&_th]:px-5 [&_td]:px-5 [&_th]:py-3 [&_td]:py-3 [&_th]:text-center [&_td]:text-center">
+							<thead>
+								<tr>
+									<th>Title</th>
+									<th>Genre</th>
+									<th>Release date</th>
+									<th>ID</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, track := range tracks {
+									<tr>
+										<td>{ track.Title }</td>
+										<td>{ track.Genre }</td>
+										<td>{ track.ReleaseDate.Format("2006-01-02") }</td>
+										<td><code>{ track.ID }</code></td>
+										<td>
+											<form method="post" action={ templ.URL("/admin/music/" + track.ID + "/delete") } class="flex justify-center">
+												<button class="btn btn-sm btn-error btn-outline" type="submit">Delete</button>
+											</form>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+		</section>
+
+		<section class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h3 class="card-title">Existing projects</h3>
+				if len(projects) == 0 {
+					<p class="text-base-content/70">No projects yet.</p>
+				} else {
+					<div class="overflow-x-auto">
+						<table class="table w-full [&_th]:px-5 [&_td]:px-5 [&_th]:py-3 [&_td]:py-3 [&_th]:text-center [&_td]:text-center">
+							<thead>
+								<tr>
+									<th>Name</th>
+									<th>Repository</th>
+									<th>ID</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								for _, project := range projects {
+									<tr>
+										<td>{ project.Name }</td>
+										<td>
+											if project.RepoURL != "" {
+												<a class="link" href={ templ.URL(project.RepoURL) } target="_blank">Open</a>
+											} else {
+												<span class="text-base-content/60">—</span>
+											}
+										</td>
+										<td><code>{ project.ID }</code></td>
+										<td>
+											<form method="post" action={ templ.URL("/admin/projects/" + project.ID + "/delete") } class="flex justify-center">
+												<button class="btn btn-sm btn-error btn-outline" type="submit">Delete</button>
+											</form>
+										</td>
+									</tr>
+								}
+							</tbody>
+						</table>
+					</div>
+				}
+			</div>
+		</section>
+
+		<section class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h3 class="card-title">Social links</h3>
+				<div class="space-y-3">
+					if len(links) == 0 {
+						<p class="text-base-content/70">No links yet.</p>
+					} else {
+						for _, link := range links {
+							<div class="rounded-box border border-base-300 p-5 md:p-6">
+								<div class="grid gap-5 md:grid-cols-[1fr_2fr_auto_auto] md:items-end">
+									<form method="post" action={ templ.URL("/admin/links/" + link.ID) } class="contents">
+										<div>
+											<label class="label"><span class="label-text">Name</span></label>
+											<input name="name" class="input input-bordered w-full" value={ link.Name }/>
+										</div>
+										<div>
+											<label class="label"><span class="label-text">URL</span></label>
+											<input name="url" class="input input-bordered w-full" value={ link.URL }/>
+										</div>
+										<div class="pt-2">
+											<button class="btn btn-sm btn-primary" type="submit">Save</button>
+										</div>
+									</form>
+									<form method="post" action={ templ.URL("/admin/links/" + link.ID + "/delete") } class="pt-2">
+										<button class="btn btn-sm btn-error btn-outline" type="submit">Delete</button>
+									</form>
+								</div>
+							</div>
+						}
+					}
+				</div>
+				<div class="divider"></div>
+				<h4 class="text-lg font-semibold">Add new link</h4>
+				<form method="post" action="/admin/links" class="grid gap-3 md:grid-cols-4 md:items-end">
+					<div>
+						<label class="label"><span class="label-text">ID (optional)</span></label>
+						<input name="id" class="input input-bordered w-full" placeholder="github"/>
+					</div>
+					<div>
+						<label class="label"><span class="label-text">Name</span></label>
+						<input name="name" class="input input-bordered w-full" placeholder="GitHub"/>
+					</div>
+					<div>
+						<label class="label"><span class="label-text">URL</span></label>
+						<input name="url" class="input input-bordered w-full" placeholder="https://github.com/Trigex"/>
+					</div>
+					<div>
+						<button class="btn btn-primary w-full" type="submit">Add link</button>
+					</div>
+				</form>
+			</div>
+		</section>
+
+		<section class="card bg-base-100 shadow-xl">
+			<div class="card-body gap-6">
+				<div class="flex items-center justify-between gap-4">
+					<h3 class="card-title">Blog post</h3>
+					<span class="badge badge-primary">Markdown preview</span>
+				</div>
+
+				<div class="grid gap-6 lg:grid-cols-2">
+					<form id="blog-form" method="post" action="/admin/blog" class="space-y-4">
+						<div>
+							<label class="label" for="blog-slug"><span class="label-text">Slug</span></label>
+							<input id="blog-slug" name="slug" class="input input-bordered w-full" placeholder="my-first-post" hx-post="/admin/blog/preview" hx-trigger="input changed delay:500ms" hx-target="#blog-preview" hx-swap="innerHTML" hx-include="#blog-form"/>
+						</div>
+
+						<div>
+							<label class="label" for="blog-title"><span class="label-text">Title</span></label>
+							<input id="blog-title" name="title" class="input input-bordered w-full" placeholder="My first post" hx-post="/admin/blog/preview" hx-trigger="input changed delay:500ms" hx-target="#blog-preview" hx-swap="innerHTML" hx-include="#blog-form"/>
+						</div>
+
+						<div>
+							<label class="label" for="blog-excerpt"><span class="label-text">Excerpt</span></label>
+							<textarea id="blog-excerpt" name="excerpt" class="textarea textarea-bordered min-h-24 w-full" placeholder="A short summary..." hx-post="/admin/blog/preview" hx-trigger="input changed delay:500ms" hx-target="#blog-preview" hx-swap="innerHTML" hx-include="#blog-form"></textarea>
+						</div>
+
+						<div class="grid gap-4 md:grid-cols-2">
+							<div>
+								<label class="label" for="blog-published-at"><span class="label-text">Published date</span></label>
+								<input id="blog-published-at" name="published_at" type="date" class="input input-bordered w-full" hx-post="/admin/blog/preview" hx-trigger="input changed delay:500ms" hx-target="#blog-preview" hx-swap="innerHTML" hx-include="#blog-form"/>
+							</div>
+						</div>
+
+						<div>
+							<label class="label" for="blog-body"><span class="label-text">Body (Markdown)</span></label>
+							<textarea id="blog-body" name="body" class="textarea textarea-bordered min-h-96 w-full font-mono" placeholder="# Hello world" hx-post="/admin/blog/preview" hx-trigger="input changed delay:500ms" hx-target="#blog-preview" hx-swap="innerHTML" hx-include="#blog-form"></textarea>
+						</div>
+
+						<p class="text-sm text-base-content/60">Upload blog images below, then paste the returned markdown into the body.</p>
+
+						<div class="card-actions justify-end">
+							<button class="btn btn-primary" type="submit">Create blog post</button>
+						</div>
+					</form>
+
+					<div class="space-y-3">
+						<h4 class="text-lg font-semibold">Preview</h4>
+						<div id="blog-preview" class="rounded-box border border-base-300 bg-base-200 p-4">
+							<p class="text-sm text-base-content/60">Preview appears here as you type.</p>
+						</div>
+						<form hx-post="/admin/blog/upload-image" hx-encoding="multipart/form-data" hx-target="#blog-image-upload-result" hx-swap="innerHTML" class="space-y-2 rounded-box border border-base-300 bg-base-200 p-4">
+							<label class="label" for="blog-upload-image"><span class="label-text">Upload blog image</span></label>
+							<input id="blog-upload-image" type="file" name="image" accept="image/*" class="file-input file-input-bordered w-full"/>
+							<button type="submit" class="btn btn-secondary btn-sm">Upload image</button>
+						</form>
+						<div id="blog-image-upload-result" class="text-sm"></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<section class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h3 class="card-title">Music release</h3>
+				<form method="post" action="/admin/music" enctype="multipart/form-data" class="grid gap-4 lg:grid-cols-2">
+					<div>
+						<label class="label" for="music-title"><span class="label-text">Title</span></label>
+						<input id="music-title" name="title" class="input input-bordered w-full" required/>
+					</div>
+					<div>
+						<label class="label" for="music-genre"><span class="label-text">Genre</span></label>
+						<input id="music-genre" name="genre" class="input input-bordered w-full" placeholder="Hard Techno"/>
+					</div>
+					<div>
+						<label class="label" for="music-cover-image"><span class="label-text">Cover image filename</span></label>
+						<input id="music-cover-image" name="cover_image" class="input input-bordered w-full" placeholder="/uploads/covers/cover.jpg or release.jpg"/>
+					</div>
+					<div>
+						<label class="label" for="music-cover-file"><span class="label-text">Upload cover image</span></label>
+						<input id="music-cover-file" type="file" name="cover_file" accept="image/*" class="file-input file-input-bordered w-full"/>
+					</div>
+					<div>
+						<label class="label" for="music-flac-url"><span class="label-text">FLAC URL</span></label>
+						<input id="music-flac-url" name="flac_url" class="input input-bordered w-full"/>
+					</div>
+					<div>
+						<label class="label" for="music-mp3-url"><span class="label-text">MP3 URL</span></label>
+						<input id="music-mp3-url" name="mp3_url" class="input input-bordered w-full"/>
+					</div>
+					<div>
+						<label class="label" for="music-soundcloud-url"><span class="label-text">SoundCloud URL</span></label>
+						<input id="music-soundcloud-url" name="soundcloud_url" class="input input-bordered w-full"/>
+					</div>
+					<div>
+						<label class="label" for="music-youtube-url"><span class="label-text">YouTube URL</span></label>
+						<input id="music-youtube-url" name="youtube_url" class="input input-bordered w-full"/>
+					</div>
+					<div>
+						<label class="label" for="music-release-date"><span class="label-text">Release date</span></label>
+						<input id="music-release-date" name="release_date" type="date" class="input input-bordered w-full"/>
+					</div>
+					<div class="lg:col-span-2 card-actions justify-end">
+						<button class="btn btn-primary" type="submit">Create music entry</button>
+					</div>
+				</form>
+			</div>
+		</section>
+
+		<section class="card bg-base-100 shadow-xl">
+			<div class="card-body">
+				<h3 class="card-title">Project</h3>
+				<form method="post" action="/admin/projects" class="grid gap-4 lg:grid-cols-2">
+					<div>
+						<label class="label" for="project-name"><span class="label-text">Name</span></label>
+						<input id="project-name" name="name" class="input input-bordered w-full" required/>
+					</div>
+					<div>
+						<label class="label" for="project-repo-url"><span class="label-text">Repo URL</span></label>
+						<input id="project-repo-url" name="repo_url" class="input input-bordered w-full"/>
+					</div>
+					<div class="lg:col-span-2">
+						<label class="label" for="project-description"><span class="label-text">Description</span></label>
+						<textarea id="project-description" name="description" class="textarea textarea-bordered min-h-32 w-full"></textarea>
+					</div>
+					<div>
+						<label class="label" for="project-tech-stack"><span class="label-text">Tech stack</span></label>
+						<input id="project-tech-stack" name="tech_stack" class="input input-bordered w-full"/>
+					</div>
+					<div class="lg:col-span-2 card-actions justify-end">
+						<button class="btn btn-primary" type="submit">Create project entry</button>
+					</div>
+				</form>
+			</div>
+		</section>
+	</div>
+}
+
+templ BlogEditPage(post BlogPost) {
+	<div class="mb-6">
+		<h2 class="text-3xl font-bold">Edit blog post</h2>
+		<p class="text-base-content/70">Update an existing post and preview markdown live.</p>
+	</div>
+
+	<div class="grid gap-6 lg:grid-cols-2">
+		<form id="edit-blog-form" method="post" action={ templ.URL("/admin/blog/" + post.Slug) } class="space-y-4">
+			<div>
+				<label class="label" for="blog-slug"><span class="label-text">Slug</span></label>
+				<input id="blog-slug" name="slug" class="input input-bordered w-full" value={ post.Slug } hx-post="/admin/blog/preview" hx-trigger="input changed delay:500ms" hx-target="#blog-preview" hx-swap="innerHTML" hx-include="#edit-blog-form"/>
+			</div>
+
+			<div>
+				<label class="label" for="blog-title"><span class="label-text">Title</span></label>
+				<input id="blog-title" name="title" class="input input-bordered w-full" value={ post.Title } hx-post="/admin/blog/preview" hx-trigger="input changed delay:500ms" hx-target="#blog-preview" hx-swap="innerHTML" hx-include="#edit-blog-form"/>
+			</div>
+
+			<div>
+				<label class="label" for="blog-excerpt"><span class="label-text">Excerpt</span></label>
+				<textarea id="blog-excerpt" name="excerpt" class="textarea textarea-bordered min-h-24 w-full" hx-post="/admin/blog/preview" hx-trigger="input changed delay:500ms" hx-target="#blog-preview" hx-swap="innerHTML" hx-include="#edit-blog-form">{ post.Excerpt }</textarea>
+			</div>
+
+			<div>
+				<label class="label" for="blog-published-at"><span class="label-text">Published date</span></label>
+				<input id="blog-published-at" name="published_at" type="date" class="input input-bordered w-full" value={ post.PublishedAt.Format("2006-01-02") } hx-post="/admin/blog/preview" hx-trigger="input changed delay:500ms" hx-target="#blog-preview" hx-swap="innerHTML" hx-include="#edit-blog-form"/>
+			</div>
+
+			<div>
+				<label class="label" for="blog-body"><span class="label-text">Body (Markdown)</span></label>
+				<textarea id="blog-body" name="body" class="textarea textarea-bordered min-h-96 w-full font-mono" hx-post="/admin/blog/preview" hx-trigger="input changed delay:500ms" hx-target="#blog-preview" hx-swap="innerHTML" hx-include="#edit-blog-form">{ post.Body }</textarea>
+			</div>
+
+			<div class="card-actions justify-between">
+				<a href="/admin/" class="btn btn-ghost">Back</a>
+				<button class="btn btn-primary" type="submit">Save changes</button>
+			</div>
+		</form>
+
+		<div class="space-y-3">
+			<h4 class="text-lg font-semibold">Preview</h4>
+			<div id="blog-preview" class="rounded-box border border-base-300 bg-base-200 p-4">
+				@BlogPreview(post)
+			</div>
+			<form hx-post="/admin/blog/upload-image" hx-encoding="multipart/form-data" hx-target="#blog-image-upload-result" hx-swap="innerHTML" class="space-y-2 rounded-box border border-base-300 bg-base-200 p-4">
+				<label class="label" for="blog-upload-image"><span class="label-text">Upload blog image</span></label>
+				<input id="blog-upload-image" type="file" name="image" accept="image/*" class="file-input file-input-bordered w-full"/>
+				<button type="submit" class="btn btn-secondary btn-sm">Upload image</button>
+			</form>
+			<div id="blog-image-upload-result" class="text-sm"></div>
+		</div>
+	</div>
+}
+
+templ BlogPreview(post BlogPost) {
+	<div class="space-y-4">
+		<div>
+			<h3 class="text-2xl font-bold">{ post.Title }</h3>
+			<p class="text-sm text-base-content/60">{ post.PublishedAt.Format("Monday, January 2, 2006") }</p>
+		</div>
+		<p class="text-base-content/80">{ post.Excerpt }</p>
+		<div class="prose max-w-none">
+			@templ.Raw(post.BodyHTML)
+		</div>
+	</div>
+}
