@@ -12,15 +12,14 @@ I have no idea why you'd want to build the binary serving my personal website, b
 git clone https://github.com/Trigex/trigex.moe
 cd trigex.moe
 npm install
-export ADMIN_USER=your-user
-export ADMIN_PASSWORD=your-password
+# edit config.yaml and set server.port, admin.username, and admin.password
 make build
 # All done, should produce this binary in the same folder
 ./trigexmoe
 ```
-The app will create its SQLite database in `data/trigexmoe.sqlite` on first run.
+On macOS/dev, the app reads `config.yaml`, uses `data/trigexmoe.sqlite` for SQLite, and stores uploads in `data/uploads/`.
 
-The admin panel lives at `/admin/` and uses HTTP Basic Auth with those env vars. Blog previews are live and render Markdown through HTMX. Blog images and music cover uploads are stored under `data/uploads/` and served at `/uploads/...`. Existing blog posts can be edited from the admin post list.
+The admin panel lives at `/admin/` and uses HTTP Basic Auth with credentials from config. The server port is also configured there (`server.port`). Blog previews are live and render Markdown through HTMX. Blog images and music cover uploads are served at `/uploads/...`. Existing blog posts can be edited from the admin post list.
 
 To install it to the system, which is only supported on FreeBSD currently (may change if I decide to change my server OS. Looking at you, OpenBSD!), you would do:
 ```sh
@@ -31,4 +30,11 @@ sysrc trigexmoe_enable="YES"
 # start the service
 service trigexmoe start
 ```
+FreeBSD installs use:
+- config: `/usr/local/etc/trigexmoe.yaml`
+- db: `/var/db/trigexmoe.sqlite`
+- data/uploads root: `/usr/local/share/trigexmoe/data`
+
+`make install` creates the data directory and db file with `trigexmoe` ownership, and installs `config.freebsd.yaml` as `/usr/local/etc/trigexmoe.yaml` if no config exists yet.
+
 I like having it installed in a jail, they make nice application containers. Then you can reverse proxy to it from a web server, I like Caddy personally.

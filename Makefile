@@ -47,12 +47,18 @@ SERVICE_USER := trigexmoe
 RCD_SOURCE_FILE := trigexmoe.rc
 
 # Installation directories
-INSTALL_DIR := /usr/local/sbin
+INSTALL_DIR := /usr/local/bin
 RCD_DIR := /usr/local/etc/rc.d
+CONFIG_DIR := /usr/local/etc
+SHARE_DIR := /usr/local/share/$(SERVICE_NAME)
+DATA_DIR := $(SHARE_DIR)/data
+DB_PATH := /var/db/$(SERVICE_NAME).sqlite
 
 # Full paths for installation
 INSTALL_PATH := $(INSTALL_DIR)/$(SERVICE_NAME)
 SERVICE_FILE := $(RCD_DIR)/$(SERVICE_NAME)
+CONFIG_PATH := $(CONFIG_DIR)/$(SERVICE_NAME).yaml
+CONFIG_SOURCE_FILE := config.freebsd.yaml
 
 # ==============================================================================
 # Standard Targets
@@ -143,6 +149,10 @@ install: build
 		echo "Please create it in the project directory."; \
 		exit 1; \
 	fi
+	@if [ ! -f "$(CONFIG_SOURCE_FILE)" ]; then \
+		echo "Error: Config template '$(CONFIG_SOURCE_FILE)' not found."; \
+		exit 1; \
+	fi
 	@echo "--> Checking for service user '$(SERVICE_USER)'..."
 	@if ! id -u $(SERVICE_USER) >/dev/null 2>&1; then \
 		echo "--> Service user not found. Creating user '$(SERVICE_USER)'..."; \
@@ -154,6 +164,18 @@ install: build
 	$(DOAS) install -m 0755 $(BINARY_NAME) $(INSTALL_PATH)
 	@echo "--> Installing rc.d service file to $(SERVICE_FILE)..."
 	$(DOAS) install -m 0755 $(RCD_SOURCE_FILE) $(SERVICE_FILE)
+	@echo "--> Ensuring FreeBSD data directory exists at $(DATA_DIR)..."
+	$(DOAS) install -d -m 0755 -o $(SERVICE_USER) -g $(SERVICE_USER) $(DATA_DIR)
+	@echo "--> Ensuring database file exists at $(DB_PATH)..."
+	$(DOAS) touch $(DB_PATH)
+	$(DOAS) chown $(SERVICE_USER):$(SERVICE_USER) $(DB_PATH)
+	@echo "--> Installing config template to $(CONFIG_PATH) (if missing)..."
+	@if [ ! -f "$(CONFIG_PATH)" ]; then \
+		$(DOAS) install -m 0640 -o $(SERVICE_USER) -g $(SERVICE_USER) $(CONFIG_SOURCE_FILE) $(CONFIG_PATH); \
+		echo "--> Installed default config file. Update admin credentials before starting service."; \
+	else \
+		echo "--> Config already exists, leaving it unchanged."; \
+	fi
 	@echo ""
 	@echo "--> Installation complete."
 	@echo "--> To enable the service, add trigexmoe_enable=\"YES\" to /etc/rc.conf"

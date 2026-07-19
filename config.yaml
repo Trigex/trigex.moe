@@ -1,0 +1,12 @@
+server:
+  port: 8080
+
+admin:
+  username: "change-me"
+  password: "change-me"
+
+database:
+  path: "data/trigexmoe.sqlite"
+
+paths:
+  data_dir: "data"

@@ -3,9 +3,8 @@ package app
 import (
 	"context"
 	"crypto/subtle"
-	"errors"
 	"os"
-	"strings"
+	"path/filepath"
 
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
@@ -19,13 +18,14 @@ import (
 const SiteName = "trigex.moe"
 const SiteURL = "https://trigex.moe"
 
-func New() (*echo.Echo, error) {
-	store, err := content.Open(context.Background(), "")
+func New(adminUser, adminPass, dbPath, dataDir string) (*echo.Echo, error) {
+	store, err := content.Open(context.Background(), dbPath)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := os.MkdirAll("data/uploads", 0o755); err != nil {
+	uploadsDir := filepath.Join(dataDir, "uploads")
+	if err := os.MkdirAll(uploadsDir, 0o755); err != nil {
 		return nil, err
 	}
 
@@ -35,9 +35,9 @@ func New() (*echo.Echo, error) {
 	e.Use(middleware.Recover())
 
 	e.StaticFS("/static", assets.FS)
-	e.Static("/uploads", "data/uploads")
+	e.Static("/uploads", uploadsDir)
 
-	adminAuth, err := newAdminAuth()
+	adminAuth, err := newAdminAuth(adminUser, adminPass)
 	if err != nil {
 		return nil, err
 	}
@@ -49,13 +49,7 @@ func New() (*echo.Echo, error) {
 	return e, nil
 }
 
-func newAdminAuth() (echo.MiddlewareFunc, error) {
-	user := strings.TrimSpace(os.Getenv("ADMIN_USER"))
-	pass := strings.TrimSpace(os.Getenv("ADMIN_PASSWORD"))
-	if user == "" || pass == "" {
-		return nil, errors.New("ADMIN_USER and ADMIN_PASSWORD must be set")
-	}
-
+func newAdminAuth(user, pass string) (echo.MiddlewareFunc, error) {
 	return middleware.BasicAuth(func(c *echo.Context, username, password string) (bool, error) {
 		userMatch := subtle.ConstantTimeCompare([]byte(username), []byte(user)) == 1
 		passMatch := subtle.ConstantTimeCompare([]byte(password), []byte(pass)) == 1

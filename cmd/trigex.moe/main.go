@@ -6,20 +6,23 @@ import (
 	"strconv"
 
 	"github.com/trigex/trigex.moe/internal/app"
-)
-
-const (
-	Port = 8080
+	"github.com/trigex/trigex.moe/internal/config"
 )
 
 func main() {
-	e, err := app.New()
+	cfg, err := config.Load("")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "failed to load config: %v\n", err)
+		os.Exit(1)
+	}
+
+	e, err := app.New(cfg.Admin.Username, cfg.Admin.Password, cfg.Database.Path, cfg.Paths.DataDir)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "failed to initialize app: %v\n", err)
 		os.Exit(1)
 	}
 
-	portString := ":" + strconv.Itoa(Port)
+	portString := ":" + strconv.Itoa(cfg.Server.Port)
 
 	e.Logger.Info("Starting server on http://localhost" + portString + " ...")
 	e.Logger.Info("Access static assets at http://localhost" + portString + "/static/")
