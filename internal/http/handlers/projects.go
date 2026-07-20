@@ -25,5 +25,12 @@ func (h *PageHandlers) ServeProjectsPage(c *echo.Context) error {
 		})
 	}
 
-	return render.Templ(c, http.StatusOK, views.Layout("trigex.moe | Projects", views.ProjectsPage(data)))
+	return render.Templ(c, http.StatusOK, views.Layout(
+		h.pageMeta(
+			"trigex.moe | Projects",
+			"Programming projects by Trigex, including Go, C++, Blazor, and .NET work with links to source repositories.",
+			"/projects",
+		),
+		views.ProjectsPage(data),
+	))
 }

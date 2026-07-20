@@ -4,9 +4,9 @@ templ navLink(href, text string) {
     <a href={ templ.URL(href) } class="btn btn-sm border border-base-300 bg-base-200 px-4 text-sm shadow-sm hover:bg-base-300 sm:btn-md sm:border-transparent sm:bg-transparent sm:shadow-none">{ text }</a>
 }
 
-templ Layout(pageTitle string, component templ.Component) {
+templ Layout(meta PageMeta, component templ.Component) {
     <!DOCTYPE html>
-    <html lang="en" data-theme="garden">
+    <html lang="en" data-theme="dracula">
         <head>
             <meta charset="UTF-8"/>
             <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -16,7 +16,31 @@ templ Layout(pageTitle string, component templ.Component) {
 			<link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png">
             <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png">
             <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png">
-			<title>{ pageTitle }</title>
+			<title>{ meta.Title }</title>
+			<meta name="description" content={ meta.Description }>
+			<meta name="author" content="Trigex">
+            <meta name="robots" content={ meta.Robots }>
+            <meta property="og:site_name" content="trigex.moe">
+            <meta property="og:title" content={ meta.Title }>
+            <meta property="og:description" content={ meta.Description }>
+            <meta property="og:type" content={ meta.OGType }>
+            if meta.CanonicalURL != "" {
+                <link rel="canonical" href={ meta.CanonicalURL }>
+                <meta property="og:url" content={ meta.CanonicalURL }>
+            }
+            if meta.OGImageURL != "" {
+                <meta property="og:image" content={ meta.OGImageURL }>
+                <meta name="twitter:image" content={ meta.OGImageURL }>
+            }
+            if meta.PublishedTime != "" {
+                <meta property="article:published_time" content={ meta.PublishedTime }>
+            }
+            <meta name="twitter:card" content={ meta.TwitterCard }>
+            <meta name="twitter:title" content={ meta.Title }>
+            <meta name="twitter:description" content={ meta.Description }>
+            for _, jsonld := range meta.JSONLD {
+                @templ.Raw("<script type=\"application/ld+json\">" + jsonld + "</script>")
+            }
         </head>
         <body class="min-h-screen overflow-x-clip bg-base-200 text-base-content">
             <main class="mx-auto flex min-h-screen w-full max-w-6xl min-w-0 flex-col px-4 py-6">

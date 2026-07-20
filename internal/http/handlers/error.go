@@ -34,7 +34,10 @@ func NewErrorHandler(siteName string) echo.HTTPErrorHandler {
 			c.Response().WriteHeader(code)
 
 			cErr = views.Layout(
-				fmt.Sprintf("%s | %d Error", siteName, code),
+				noIndexMeta(
+					fmt.Sprintf("%s | %d Error", siteName, code),
+					http.StatusText(code),
+				),
 				views.ErrorPage(code, http.StatusText(code)),
 			).Render(c.Request().Context(), c.Response())
 		}

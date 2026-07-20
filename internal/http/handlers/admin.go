@@ -78,7 +78,10 @@ func (h *PageHandlers) ServeAdminPage(c *echo.Context) error {
 		})
 	}
 
-	return hrender.Templ(c, http.StatusOK, views.Layout("trigex.moe | Admin", views.AdminPage(posts, tracks, projects, links)))
+	return hrender.Templ(c, http.StatusOK, views.Layout(
+		noIndexMeta("trigex.moe | Admin", "Admin panel for managing trigex.moe content."),
+		views.AdminPage(posts, tracks, projects, links),
+	))
 }
 
 func (h *PageHandlers) ServeEditBlogPage(c *echo.Context) error {
@@ -104,7 +107,10 @@ func (h *PageHandlers) ServeEditBlogPage(c *echo.Context) error {
 		PublishedAt: row.PublishedAt,
 	}
 
-	return hrender.Templ(c, http.StatusOK, views.Layout("trigex.moe | Edit Blog Post", views.BlogEditPage(post)))
+	return hrender.Templ(c, http.StatusOK, views.Layout(
+		noIndexMeta("trigex.moe | Edit Blog Post", "Admin editor for a trigex.moe blog post."),
+		views.BlogEditPage(post),
+	))
 }
 
 func (h *PageHandlers) ServeBlogPreview(c *echo.Context) error {

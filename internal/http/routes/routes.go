@@ -8,6 +8,8 @@ import (
 
 func Register(e *echo.Echo, pageHandlers *handlers.PageHandlers, adminAuth echo.MiddlewareFunc) {
 	e.GET("/", pageHandlers.ServeHomePage)
+	e.GET("/robots.txt", pageHandlers.ServeRobotsTXT)
+	e.GET("/sitemap.xml", pageHandlers.ServeSitemapXML)
 	e.GET("/music", pageHandlers.ServeMusicPage)
 	e.GET("/projects", pageHandlers.ServeProjectsPage)
 	e.GET("/blog", pageHandlers.ServeBlogIndexPage)

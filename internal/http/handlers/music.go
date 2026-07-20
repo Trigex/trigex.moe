@@ -29,5 +29,12 @@ func (h *PageHandlers) ServeMusicPage(c *echo.Context) error {
 		})
 	}
 
-	return render.Templ(c, http.StatusOK, views.Layout("trigex.moe | Music", views.MusicPage(data)))
+	return render.Templ(c, http.StatusOK, views.Layout(
+		h.pageMeta(
+			"trigex.moe | Music",
+			"Music releases by Trigex with streaming and download links across hardcore, makina, uptempo, drum and bass, psytrance, and more.",
+			"/music",
+		),
+		views.MusicPage(data),
+	))
 }

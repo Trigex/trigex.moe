@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo/v5"
 
@@ -31,5 +32,34 @@ func (h *PageHandlers) ServeHomePage(c *echo.Context) error {
 		Links: links,
 	}
 
-	return render.Templ(c, http.StatusOK, views.Layout("trigex.moe | Home", views.HomePage(data)))
+	meta := h.pageMeta("trigex.moe | Home", data.Bio, "/")
+	meta.JSONLD = []string{
+		mustJSONLD(map[string]any{
+			"@context":    "https://schema.org",
+			"@type":       "WebSite",
+			"name":        h.siteName,
+			"url":         h.absoluteURL("/"),
+			"description": meta.Description,
+		}),
+		mustJSONLD(map[string]any{
+			"@context": "https://schema.org",
+			"@type":    "Person",
+			"name":     "Trigex",
+			"url":      h.absoluteURL("/"),
+			"sameAs":   socialLinkURLs(links),
+			"jobTitle": "Software Developer, Music Producer, DJ, and Sysadmin",
+		}),
+	}
+
+	return render.Templ(c, http.StatusOK, views.Layout(meta, views.HomePage(data)))
+}
+
+func socialLinkURLs(links []views.Link) []string {
+	urls := make([]string, 0, len(links))
+	for _, link := range links {
+		if strings.HasPrefix(link.URL, "http://") || strings.HasPrefix(link.URL, "https://") {
+			urls = append(urls, link.URL)
+		}
+	}
+	return urls
 }

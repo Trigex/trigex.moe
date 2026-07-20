@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo/v5"
 
@@ -28,7 +29,14 @@ func (h *PageHandlers) ServeBlogIndexPage(c *echo.Context) error {
 		})
 	}
 
-	return render.Templ(c, http.StatusOK, views.Layout("trigex.moe | Blog", views.BlogPage(posts)))
+	return render.Templ(c, http.StatusOK, views.Layout(
+		h.pageMeta(
+			"trigex.moe | Blog",
+			"Blog posts, site updates, and longer thoughts from Trigex.",
+			"/blog",
+		),
+		views.BlogPage(posts),
+	))
 }
 
 func (h *PageHandlers) ServeBlogPostPage(c *echo.Context) error {
@@ -45,12 +53,45 @@ func (h *PageHandlers) ServeBlogPostPage(c *echo.Context) error {
 		return err
 	}
 
-	return render.Templ(c, http.StatusOK, views.Layout("trigex.moe | "+post.Title, views.BlogPostPage(views.BlogPost{
+	viewPost := views.BlogPost{
 		Slug:        post.Slug,
 		Title:       post.Title,
 		Excerpt:     post.Excerpt,
 		Body:        post.Body,
 		BodyHTML:    bodyHTML,
 		PublishedAt: post.PublishedAt,
-	})))
+	}
+
+	meta := h.articleMeta(
+		"trigex.moe | "+post.Title,
+		post.Excerpt,
+		"/blog/"+post.Slug,
+		post.PublishedAt,
+	)
+	meta.JSONLD = []string{
+		mustJSONLD(map[string]any{
+			"@context":         "https://schema.org",
+			"@type":            "BlogPosting",
+			"headline":         post.Title,
+			"description":      meta.Description,
+			"url":              h.absoluteURL("/blog/" + post.Slug),
+			"mainEntityOfPage": h.absoluteURL("/blog/" + post.Slug),
+			"datePublished":    post.PublishedAt.UTC().Format(time.RFC3339),
+			"dateModified":     post.PublishedAt.UTC().Format(time.RFC3339),
+			"author": map[string]any{
+				"@type": "Person",
+				"name":  "Trigex",
+			},
+			"publisher": map[string]any{
+				"@type": "Person",
+				"name":  "Trigex",
+			},
+			"image": meta.OGImageURL,
+		}),
+	}
+
+	return render.Templ(c, http.StatusOK, views.Layout(
+		meta,
+		views.BlogPostPage(viewPost),
+	))
 }

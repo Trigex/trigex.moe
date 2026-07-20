@@ -17,7 +17,7 @@ make build
 # All done, should produce this binary in the same folder
 ./trigexmoe
 ```
-The admin panel lives at `/admin/` and uses HTTP Basic Auth with credentials from config. The server port is also configured there (`server.port`). Blog previews are live and render Markdown through HTMX. Blog images and music cover uploads are served at `/uploads/...`. Existing blog posts can be edited from the admin post list.
+The admin panel lives at `/admin/` and uses HTTP Basic Auth with credentials from config. The server port is also configured there (`server.port`). Blog previews are live and render Markdown through HTMX. Blog images and music cover uploads are served at `/uploads/...`. Existing blog posts can be edited from the admin post list. The site also exposes `/robots.txt`, `/sitemap.xml`, RSS at `/blog/rss.xml`, and page-specific Open Graph/Twitter/JSON-LD metadata for SEO.
 
 To install it to the system, which is only supported on FreeBSD in the Makefile currently, you would do:
 ```sh
@@ -34,6 +34,5 @@ FreeBSD installs use:
 - data/uploads root: `/usr/local/share/trigexmoe/data`
 
 `make install` creates the data directory and db file with `trigexmoe` ownership, and installs `config.freebsd.yaml` as `/usr/local/etc/trigexmoe.yaml` if no config exists yet.
-On FreeBSD, database/data paths are expected to be absolute; if relative paths are configured, the app now falls back to the defaults above.
 
 I like having it installed in a jail, they make nice application containers. Then you can reverse proxy to it from a web server, I like Caddy personally.
