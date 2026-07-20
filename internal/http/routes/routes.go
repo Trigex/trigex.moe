@@ -15,6 +15,7 @@ func Register(e *echo.Echo, pageHandlers *handlers.PageHandlers, adminAuth echo.
 	e.GET("/blog/:slug", pageHandlers.ServeBlogPostPage)
 
 	admin := e.Group("/admin", adminAuth)
+	admin.GET("", pageHandlers.ServeAdminPage)
 	admin.GET("/", pageHandlers.ServeAdminPage)
 	admin.GET("/blog/:slug/edit", pageHandlers.ServeEditBlogPage)
 	admin.POST("/blog/preview", pageHandlers.ServeBlogPreview)
