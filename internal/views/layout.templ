@@ -1,7 +1,7 @@
 package views
 
 templ navLink(href, text string) {
-    <a href={ templ.URL(href) } class="btn btn-ghost btn-sm sm:btn-md">{ text }</a>
+    <a href={ templ.URL(href) } class="btn btn-sm border border-base-300 bg-base-200 px-4 text-sm shadow-sm hover:bg-base-300 sm:btn-md sm:border-transparent sm:bg-transparent sm:shadow-none">{ text }</a>
 }
 
 templ Layout(pageTitle string, component templ.Component) {
