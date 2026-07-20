@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
+	"strings"
 
 	_ "modernc.org/sqlite"
 )
@@ -37,9 +39,9 @@ func Open(ctx context.Context, path string) (*Store, error) {
 
 	db.SetMaxOpenConns(1)
 
-	if _, err := db.ExecContext(ctx, "PRAGMA foreign_keys = ON"); err != nil {
+	if err := configureSQLite(ctx, db, path); err != nil {
 		_ = db.Close()
-		return nil, fmt.Errorf("enabling sqlite foreign keys: %w", err)
+		return nil, err
 	}
 
 	schema, err := schemaFS.ReadFile("schema.sql")
@@ -73,6 +75,29 @@ func Open(ctx context.Context, path string) (*Store, error) {
 
 func (s *Store) Close() error {
 	return s.db.Close()
+}
+
+func configureSQLite(ctx context.Context, db *sql.DB, path string) error {
+	if _, err := db.ExecContext(ctx, "PRAGMA foreign_keys = ON"); err != nil {
+		return fmt.Errorf("enabling sqlite foreign keys: %w", err)
+	}
+	if _, err := db.ExecContext(ctx, "PRAGMA busy_timeout = 5000"); err != nil {
+		return fmt.Errorf("setting sqlite busy timeout: %w", err)
+	}
+
+	// FreeBSD default uses /var/db/trigexmoe.sqlite. /var/db is often not writable
+	// by service users for creating journal side files, so force in-memory journaling.
+	cleaned := filepath.Clean(path)
+	if runtime.GOOS == "freebsd" && strings.HasPrefix(cleaned, "/var/db/") {
+		if _, err := db.ExecContext(ctx, "PRAGMA journal_mode = MEMORY"); err != nil {
+			return fmt.Errorf("setting sqlite journal mode: %w", err)
+		}
+		if _, err := db.ExecContext(ctx, "PRAGMA temp_store = MEMORY"); err != nil {
+			return fmt.Errorf("setting sqlite temp store: %w", err)
+		}
+	}
+
+	return nil
 }
 
 func ensureMusicTrackGenreColumn(ctx context.Context, db *sql.DB) error {
