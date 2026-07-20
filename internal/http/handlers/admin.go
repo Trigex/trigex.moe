@@ -125,10 +125,13 @@ func (h *PageHandlers) ServeBlogPreview(c *echo.Context) error {
 func (h *PageHandlers) UploadBlogImage(c *echo.Context) error {
 	imageURL, err := h.saveUploadedImage(c, "image", "blog")
 	if err != nil {
-		return err
+		return c.HTML(http.StatusOK, fmt.Sprintf(
+			`<p class="text-error">Upload failed: %s</p>`,
+			html.EscapeString(err.Error()),
+		))
 	}
 	if imageURL == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "image is required")
+		return c.HTML(http.StatusOK, `<p class="text-error">Upload failed: image is required.</p>`)
 	}
 
 	markdown := fmt.Sprintf("![image](%s)", imageURL)
@@ -443,7 +446,7 @@ func (h *PageHandlers) saveUploadedImage(c *echo.Context, fieldName, subdir stri
 	}
 	defer file.Close()
 
-	ext, err := validatedImageExtension(file)
+	ext, err := validatedImageExtension(file, fileHeader.Filename)
 	if err != nil {
 		return "", echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
@@ -476,7 +479,7 @@ func (h *PageHandlers) saveUploadedImage(c *echo.Context, fieldName, subdir stri
 	return "/uploads/" + subdir + "/" + filename, nil
 }
 
-func validatedImageExtension(file multipart.File) (string, error) {
+func validatedImageExtension(file multipart.File, originalFilename string) (string, error) {
 	buf := make([]byte, 512)
 	n, err := file.Read(buf)
 	if err != nil && !errors.Is(err, io.EOF) {
@@ -487,6 +490,8 @@ func validatedImageExtension(file multipart.File) (string, error) {
 	switch contentType {
 	case "image/jpeg":
 		return ".jpg", nil
+	case "image/jpg":
+		return ".jpg", nil
 	case "image/png":
 		return ".png", nil
 	case "image/gif":
@@ -494,6 +499,17 @@ func validatedImageExtension(file multipart.File) (string, error) {
 	case "image/webp":
 		return ".webp", nil
 	default:
-		return "", fmt.Errorf("unsupported image type: %s", contentType)
+		switch strings.ToLower(filepath.Ext(originalFilename)) {
+		case ".jpg", ".jpeg":
+			return ".jpg", nil
+		case ".png":
+			return ".png", nil
+		case ".gif":
+			return ".gif", nil
+		case ".webp":
+			return ".webp", nil
+		default:
+			return "", fmt.Errorf("unsupported image type: %s", contentType)
+		}
 	}
 }

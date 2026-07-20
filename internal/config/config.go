@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"runtime"
 	"strings"
 
@@ -66,6 +67,16 @@ func Load(path string) (Config, error) {
 	}
 	if strings.TrimSpace(cfg.Paths.DataDir) == "" {
 		cfg.Paths.DataDir = defaultDataDir()
+	}
+	cfg.Database.Path = strings.TrimSpace(cfg.Database.Path)
+	cfg.Paths.DataDir = strings.TrimSpace(cfg.Paths.DataDir)
+	if runtime.GOOS == "freebsd" {
+		if !filepath.IsAbs(cfg.Database.Path) {
+			cfg.Database.Path = defaultDBPath()
+		}
+		if !filepath.IsAbs(cfg.Paths.DataDir) {
+			cfg.Paths.DataDir = defaultDataDir()
+		}
 	}
 
 	cfg.Admin.Username = strings.TrimSpace(cfg.Admin.Username)

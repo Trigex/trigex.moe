@@ -34,5 +34,6 @@ FreeBSD installs use:
 - data/uploads root: `/usr/local/share/trigexmoe/data`
 
 `make install` creates the data directory and db file with `trigexmoe` ownership, and installs `config.freebsd.yaml` as `/usr/local/etc/trigexmoe.yaml` if no config exists yet.
+On FreeBSD, database/data paths are expected to be absolute; if relative paths are configured, the app now falls back to the defaults above.
 
 I like having it installed in a jail, they make nice application containers. Then you can reverse proxy to it from a web server, I like Caddy personally.
