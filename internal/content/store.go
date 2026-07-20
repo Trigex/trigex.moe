@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"embed"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -65,7 +66,7 @@ func Open(ctx context.Context, path string) (*Store, error) {
 		db:      db,
 	}
 
-	if err := store.seed(ctx); err != nil {
+	if err := store.seedOnce(ctx); err != nil {
 		_ = db.Close()
 		return nil, err
 	}
@@ -75,6 +76,43 @@ func Open(ctx context.Context, path string) (*Store, error) {
 
 func (s *Store) Close() error {
 	return s.db.Close()
+}
+
+func (s *Store) seedOnce(ctx context.Context) error {
+	if _, err := s.db.ExecContext(ctx, `
+		CREATE TABLE IF NOT EXISTS app_meta (
+			key TEXT PRIMARY KEY,
+			value TEXT NOT NULL
+		)
+	`); err != nil {
+		return fmt.Errorf("creating app_meta table: %w", err)
+	}
+
+	var value string
+	err := s.db.QueryRowContext(ctx, `
+		SELECT value
+		FROM app_meta
+		WHERE key = 'seed_version'
+		LIMIT 1
+	`).Scan(&value)
+	if err == nil {
+		return nil
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return fmt.Errorf("checking seed state: %w", err)
+	}
+
+	if err := s.seed(ctx); err != nil {
+		return err
+	}
+
+	if _, err := s.db.ExecContext(ctx, `
+		INSERT INTO app_meta (key, value)
+		VALUES ('seed_version', '1')
+	`); err != nil {
+		return fmt.Errorf("recording seed state: %w", err)
+	}
+	return nil
 }
 
 func configureSQLite(ctx context.Context, db *sql.DB, path string) error {

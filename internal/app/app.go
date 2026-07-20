@@ -42,7 +42,7 @@ func New(adminUser, adminPass, dbPath, dataDir string) (*echo.Echo, error) {
 		return nil, err
 	}
 
-	pageHandlers := handlers.NewPageHandlers(SiteName, SiteURL, store)
+	pageHandlers := handlers.NewPageHandlers(SiteName, SiteURL, store, uploadsDir)
 	e.HTTPErrorHandler = handlers.NewErrorHandler(SiteName)
 	routes.Register(e, pageHandlers, adminAuth)
 

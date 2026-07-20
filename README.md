@@ -1,8 +1,8 @@
 # trigex.moe
 
-My (Trigex) personal website, that links to my profiles on other websites, lists downloads and links to most of the music I make (and let's you listen on the site itself), has a blog post section with RSS feed support, and displays select GitHub repos and general programming projects I wanna show off.
+My (Trigex) personal website, that links to my profiles on other websites, lists downloads and links to most of the music I make (and lets you listen on the site itself), has a blog post section with RSS feed support, and displays select GitHub repos and general programming projects I wanna show off.
 It is written in Go, and uses Echo for the web framework, templ as the template rendering engine, HTMX for some dynamic page stuff, Tailwind CSS + daisyUI for styling, and SQLite via sqlc for database stuff.
-There's also a nice admin panel for managing all the database data through the site.
+There's also a nice admin panel for managing all the database entries through the site.
 
 ## Building
 
@@ -17,11 +17,9 @@ make build
 # All done, should produce this binary in the same folder
 ./trigexmoe
 ```
-On macOS/dev, the app reads `config.yaml`, uses `data/trigexmoe.sqlite` for SQLite, and stores uploads in `data/uploads/`.
-
 The admin panel lives at `/admin/` and uses HTTP Basic Auth with credentials from config. The server port is also configured there (`server.port`). Blog previews are live and render Markdown through HTMX. Blog images and music cover uploads are served at `/uploads/...`. Existing blog posts can be edited from the admin post list.
 
-To install it to the system, which is only supported on FreeBSD currently (may change if I decide to change my server OS. Looking at you, OpenBSD!), you would do:
+To install it to the system, which is only supported on FreeBSD in the Makefile currently, you would do:
 ```sh
 # while still in the trigex.moe/ directory
 make install
@@ -36,6 +34,5 @@ FreeBSD installs use:
 - data/uploads root: `/usr/local/share/trigexmoe/data`
 
 `make install` creates the data directory and db file with `trigexmoe` ownership, and installs `config.freebsd.yaml` as `/usr/local/etc/trigexmoe.yaml` if no config exists yet.
-When using `/var/db/trigexmoe.sqlite` on FreeBSD, the app automatically uses in-memory SQLite journaling to avoid write failures from `/var/db` directory permissions.
 
 I like having it installed in a jail, they make nice application containers. Then you can reverse proxy to it from a web server, I like Caddy personally.

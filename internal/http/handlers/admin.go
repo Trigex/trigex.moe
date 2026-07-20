@@ -123,7 +123,7 @@ func (h *PageHandlers) ServeBlogPreview(c *echo.Context) error {
 }
 
 func (h *PageHandlers) UploadBlogImage(c *echo.Context) error {
-	imageURL, err := saveUploadedImage(c, "image", "blog")
+	imageURL, err := h.saveUploadedImage(c, "image", "blog")
 	if err != nil {
 		return err
 	}
@@ -279,7 +279,7 @@ func (h *PageHandlers) CreateMusicTrack(c *echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 	coverImage := strings.TrimSpace(c.Request().FormValue("cover_image"))
-	uploadedCover, err := saveUploadedImage(c, "cover_file", "covers")
+	uploadedCover, err := h.saveUploadedImage(c, "cover_file", "covers")
 	if err != nil {
 		return err
 	}
@@ -433,7 +433,7 @@ func mustDate(value string) (time.Time, error) {
 	return d.UTC(), nil
 }
 
-func saveUploadedImage(c *echo.Context, fieldName, subdir string) (string, error) {
+func (h *PageHandlers) saveUploadedImage(c *echo.Context, fieldName, subdir string) (string, error) {
 	file, fileHeader, err := c.Request().FormFile(fieldName)
 	if errors.Is(err, http.ErrMissingFile) {
 		return "", nil
@@ -454,7 +454,7 @@ func saveUploadedImage(c *echo.Context, fieldName, subdir string) (string, error
 	}
 	filename := fmt.Sprintf("%s-%d%s", base, time.Now().UnixNano(), ext)
 
-	uploadDir := filepath.Join("data", "uploads", subdir)
+	uploadDir := filepath.Join(h.uploadsDir, subdir)
 	if err := os.MkdirAll(uploadDir, 0o755); err != nil {
 		return "", err
 	}
