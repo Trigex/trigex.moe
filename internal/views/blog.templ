@@ -13,10 +13,10 @@ type BlogPost struct {
 
 templ BlogPage(posts []BlogPost) {
 	<div class="mb-6">
-		<div class="flex items-start justify-between gap-4">
+		<div class="flex flex-col items-start justify-between gap-4 sm:flex-row">
 			<div>
 				<h2 class="text-3xl font-bold">Blog ✍️</h2>
-				<p class="text-base-content/70">Notes, updates, and longer thoughts from the site.</p>
+				<p class="text-base-content/70">My terribly written thoughts and such!</p>
 			</div>
 			<a href="/blog/rss.xml" class="btn btn-outline btn-primary btn-sm">RSS</a>
 		</div>
@@ -41,7 +41,7 @@ templ BlogPage(posts []BlogPost) {
 templ BlogPostPage(post BlogPost) {
 	<div class="card bg-base-100 shadow-xl">
 		<div class="card-body">
-			<div class="flex items-start justify-between gap-4">
+			<div class="flex flex-col items-start justify-between gap-4 sm:flex-row">
 				<div>
 					<h2 class="card-title text-3xl">{ post.Title }</h2>
 					<p class="text-sm text-base-content/60">{ post.PublishedAt.Format("Monday, January 2, 2006") }</p>
